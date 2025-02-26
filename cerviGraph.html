@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>The Biopsy Position and Annotation</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    /* General Styles */
+    body {
+      background-color: #f3f4f6;
+      padding: 1rem;
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      font-size: 1.875rem;
+      font-weight: bold;
+      text-align: center;
+      color: #6b46c1;
+      margin-bottom: 2rem;
+    }
+
+    /* Dropzone Styles */
+    .dropzone {
+      position: relative;
+      width: 300px;
+      height: 300px;
+    }
+
+    .dropzone img {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Draggable Buttons */
+    .draggable {
+      cursor: grab;
+      background-color: #e5e7eb;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.875rem;
+      text-align: center;
+      user-select: none;
+    }
+
+    /* Annotation Styles */
+    .annotation {
+      position: absolute;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 2px 5px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 12px;
+      cursor: grab;
+      user-select: none;
+    }
+
+    /* Delete Button */
+    .delete-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background-color: red;
+      color: white;
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    /* Selection Container */
+    .selection-container {
+      position: fixed;
+      top: 80px;
+      left: 20px;
+      background-color: white;
+      padding: 8px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      width: 160px;
+    }
+
+    .selection-container label {
+      font-size: 12px;
+      color: #6b46c1;
+      font-weight: bold;
+    }
+
+    .selection-container select {
+      width: 100%;
+      padding: 4px;
+      font-size: 12px;
+      border: 1px solid #6b46c1;
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+
+    /* Flex Container for Graphs */
+    .graph-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .graph-container {
+        flex-direction: row;
+        gap: 2rem;
+      }
+    }
+
+    /* Button Grid */
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      margin-top: 2rem;
+    }
+
+    img {
+  pointer-events: none;
+  
+}
+
+    @media (min-width: 768px) {
+      .button-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* Graph Labels */
+    .graph-label {
+      color: #6b46c1;
+      margin-top: 1rem;
+      font-size: 1.125rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>The Biopsy Position and Annotation</h1>
+
+  <!-- Clean button and selection mechanism -->
+  <button class="delete-button" id="cleanButton">🧹</button>
+  <div class="selection-container">
+    <label for="graphSelector">Select Graph to Clean:</label>
+    <select id="graphSelector">
+      <option value="all">Both Graphs</option>
+      <option value="vaginaDropzone">Vagina Coordinates</option>
+      <option value="cervicalDropzone">Cervical Coordinates</option>
+    </select>
+  </div>
+
+  <!-- Graph Container -->
+  <div class="graph-container">
+    <div class="flex flex-col items-center">
+      <div class="dropzone" id="vaginaDropzone">
+        <!--<img  alt="Vagina coordinates chart" src="cervi-graph-orange.jpeg"  draggable="false"  onmousedown="return false" alt="Non-draggable image" style="user-select:none; -webkit-user-drag: none;" /> -->
+        <img class="img" alt="Vagina coordinates chart" src="cervi-graph-orange.jpeg" />
+    </div>
+      <p class="graph-label">Vagina coordinates</p>
+    </div>
+    <div class="flex flex-col items-center">
+      <div class="dropzone" id="cervicalDropzone">
+        <img alt="Cervical coordinates chart" src="cervi-graph-orange.jpeg" />
+      </div>
+      <p class="graph-label">Cervical coordinates</p>
+    </div>
+  </div>
+
+  <!-- Button Grid -->
+  <div class="button-grid" id="buttonContainer">
+    <button class="draggable" draggable="true">Po = Polyp</button>
+    <button class="draggable" draggable="true">E = Erosion area</button>
+    <button class="draggable" draggable="true">W = Acetic acid white</button>
+    <button class="draggable" draggable="true">M = Mount</button>
+    <button class="draggable" draggable="true">L = Leukoplakia</button>
+    <button class="draggable" draggable="true">AT = Abnormal</button>
+    <button class="draggable" draggable="true">C = Condyloma</button>
+    <button class="draggable" draggable="true">I = Invasive carcinoma</button>
+    <button class="draggable" draggable="true">V = Atypical vascular</button>
+    <button class="draggable" draggable="true">Xn = Direct</button>
+    <button class="draggable" draggable="true">n = Container number</button>
+    <button class="draggable" draggable="true">P = Punctate vessels</button>
+  </div>
+
+  <!-- Scissors and Save Buttons -->
+  <button class="delete-button" id="scissorsButton" style="left: 80px;">✂</button>
+  <button class="delete-button" id="saveButton" style="left: 140px;">💾</button>
+
+  <script>
+    // JavaScript remains unchanged
+    document.addEventListener('DOMContentLoaded', function() {
+      const dropzones = document.querySelectorAll('.dropzone');
+      const buttons = document.querySelectorAll('.draggable');
+      const scissorsButton = document.getElementById('scissorsButton');
+      const cleanButton = document.getElementById('cleanButton');
+      const saveButton = document.getElementById('saveButton');
+      const graphSelector = document.getElementById('graphSelector');
+      let draggedLabel = null;
+      let deleteMode = false;
+      
+      buttons.forEach(button => {
+        button.addEventListener('dragstart', function(event) {
+          draggedLabel = event.target.innerText.split('=')[0].trim();
+          event.dataTransfer.setData('text/plain', draggedLabel);
+        });
+      });
+      
+      function makeDraggable(annotation) {
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        annotation.addEventListener('mousedown', function(event) {
+          if (deleteMode) {
+            annotation.remove();
+            savePositions();
+            return;
+          }
+
+          isDragging = true;
+          offsetX = event.offsetX;
+          offsetY = event.offsetY;
+          annotation.style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mousemove', function(event) {
+          if (isDragging) {
+            const dropzone = annotation.parentElement;
+            const dropzoneRect = dropzone.getBoundingClientRect();
+            const newX = event.clientX - dropzoneRect.left - offsetX;
+            const newY = event.clientY - dropzoneRect.top - offsetY;
+
+            // Ensure the annotation stays within the dropzone
+            const maxX = dropzoneRect.width - annotation.offsetWidth;
+            const maxY = dropzoneRect.height - annotation.offsetHeight;
+
+            annotation.style.left = `${Math.min(Math.max(newX, 0), maxX)}px`;
+            annotation.style.top = `${Math.min(Math.max(newY, 0), maxY)}px`;
+          }
+        });
+
+        document.addEventListener('mouseup', function() {
+          if (isDragging) {
+            isDragging = false;
+            annotation.style.cursor = 'grab';
+            savePositions();
+          }
+        });
+      }
+      
+      dropzones.forEach(dropzone => {
+        dropzone.addEventListener('dragover', function(event) {
+          event.preventDefault();
+        });
+        
+        dropzone.addEventListener('drop', function(event) {
+          event.preventDefault();
+          if (draggedLabel) {
+            const annotation = document.createElement('div');
+            annotation.className = 'annotation';
+            annotation.innerText = draggedLabel;
+            annotation.style.left = `${event.offsetX}px`;
+            annotation.style.top = `${event.offsetY}px`;
+            dropzone.appendChild(annotation);
+            makeDraggable(annotation);
+            savePositions();
+          }
+        });
+      });
+      
+      scissorsButton.addEventListener('click', function() {
+        deleteMode = !deleteMode;
+        scissorsButton.style.backgroundColor = deleteMode ? 'darkred' : 'red';
+      });
+      
+      cleanButton.addEventListener('click', function() {
+        const selectedGraph = graphSelector.value;
+        if (selectedGraph === 'all') {
+          dropzones.forEach(dropzone => {
+            const annotations = dropzone.querySelectorAll('.annotation');
+            annotations.forEach(annotation => annotation.remove());
+            localStorage.removeItem(dropzone.id);
+          });
+        } else {
+          const dropzone = document.getElementById(selectedGraph);
+          const annotations = dropzone.querySelectorAll('.annotation');
+          annotations.forEach(annotation => annotation.remove());
+          localStorage.removeItem(dropzone.id);
+        }
+      });
+      
+      saveButton.addEventListener('click', function() {
+        saveGraph('vaginaDropzone', 'vagina_graph.png');
+        saveGraph('cervicalDropzone', 'cervical_graph.png');
+      });
+
+      function saveGraph(dropzoneId, fileName) {
+        const dropzone = document.getElementById(dropzoneId);
+        html2canvas(dropzone).then(canvas => {
+          const link = document.createElement('a');
+          link.download = fileName;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        });
+      }
+      
+      function savePositions() {
+        dropzones.forEach(dropzone => {
+          const annotations = dropzone.querySelectorAll('.annotation');
+          const positions = [];
+          annotations.forEach(annotation => {
+            positions.push({
+              label: annotation.innerText,
+              x: parseInt(annotation.style.left),
+              y: parseInt(annotation.style.top)
+            });
+          });
+          localStorage.setItem(dropzone.id, JSON.stringify(positions));
+        });
+      }
+      
+      function loadPositions() {
+        dropzones.forEach(dropzone => {
+          const positions = JSON.parse(localStorage.getItem(dropzone.id)) || [];
+          positions.forEach(pos => {
+            const annotation = document.createElement('div');
+            annotation.className = 'annotation';
+            annotation.innerText = pos.label;
+            annotation.style.left = `${pos.x}px`;
+            annotation.style.top = `${pos.y}px`;
+            dropzone.appendChild(annotation);
+            makeDraggable(annotation);
+          });
+        });
+      }
+      
+      loadPositions();
+    });
+  </script>
+</body>
+</html>
